@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en"
+>
+<head>
+    <!--    Load Required CSS-->
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui" name="viewport">
+    <!--    Load Element UI Components-->
+    <!-- import CSS -->
+    <link href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" rel="stylesheet">
+    <!-- import JavaScript -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <meta charset="UTF-8">
+    <title>Question Management</title>
+</head>
+<body>
+
+<div id="app">
+    <!--    :default-active="activeIndex2"-->
+    <!--    @select="handleSelect"-->
+    <div class="container mt-5">
+        <div>
+            <el-row type="flex" justify="center" :gutter="20">
+                <el-col :xs="8" :sm="12" :md="16" :lg="14" :xl="20">
+                    <el-input
+                            placeholder="Please input your sentence"
+                            v-model="sentence"
+                            clearable>
+                    </el-input>
+                </el-col>
+                <el-col :xs="8" :sm="6" :md="4" :lg="3" :xl="1">
+                    <el-button @click="getResult">Analyze</el-button>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-radio-group row v-model="processing_type_sel">
+                    <el-radio-button disabled label="Processing Type"></el-radio-button>
+                    <el-radio-button label="word_vec">Vector Conversion</el-radio-button>
+                    <el-radio-button label="sentiment">Sentimental Analysis</el-radio-button>
+                </el-radio-group>
+            </el-row>
+            <el-row>
+                <div v-if="processing_type_sel === 'word_vec'">
+                    <el-row>
+                        Vector Representation
+                    </el-row>
+                    <el-row>
+                        {{result}}
+                    </el-row>
+                </div>
+                <div v-if="processing_type_sel === 'sentiment'">
+                    <el-row>
+                        Emotional tone
+                    </el-row>
+                    <el-row>
+                        {{result}}
+                    </el-row>
+                </div>
+
+            </el-row>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    Vue.config.devtools = true;
+    let vm = new Vue({
+        el: '#app',
+        data: {
+            response_data: null,
+            search_results: null,
+            processing_type_sel: "word_vec",
+            sentence: "",
+            loading: false,
+            result: ""
+        },
+
+        methods: {
+            getResult: function () {
+                let self = this;
+                let reqData = {
+                    content: self.sentence,
+                    process_type: self.processing_type_sel
+                };
+                axios.post('http://127.0.0.1:8000/api/get_result', reqData).then(function (response) {
+                    self.loading = false;
+                    self.result = response.data.result;
+                    console.log(self.tableData.result)
+                }).catch(function (error) {
+                    console.log(error);
+                    self.loading = false;
+                })
+            }
+        }
+    })
+</script>
+
+<style>
+    [v-cloak] {
+        display: none;
+    }
+
+    .el-input-number {
+        margin-left: 10px;
+    }
+
+    .el-radio-group {
+        margin-right: 30px;
+    }
+
+    .el-message-box {
+        width: 800px;
+    }
+
+    .el-row {
+        margin-bottom: 20px;
+
+    &
+    :last-child {
+        margin-bottom: 0;
+    }
+
+    }
+    .el-col {
+        border-radius: 2px;
+    }
+
+    #app {
+        font-family: Helvetica, sans-serif;
+        text-align: center;
+    }
+</style>
